@@ -8,6 +8,7 @@ for virtual environment => `python -m venv .venv`
 
 ### 1. pip install
 `pip install -r requirements.txt`
+
 Notice: Open AI embedding does not support any more, so you need to install to version `openai==0.28`.
 
 ### 2. Start milvus server (local)
