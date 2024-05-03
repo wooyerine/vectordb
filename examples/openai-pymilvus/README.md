@@ -1,5 +1,5 @@
 ## OpenAI + Hugging-Face-datasets + Milvus + Attu
-Just text querying from Vector Database Milvus with openAI embedding model and Huggling-face datasets(netflix movies).
+Just text querying from Vector Database Milvus with openAI embedding model and Hugging-face datasets(netflix movies).
 Attu is a GUI for Milvus.
 Reference: https://cookbook.openai.com/examples/vector_databases/milvus/filtered_search_with_milvus_and_openai
 
