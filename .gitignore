@@ -162,3 +162,5 @@ cython_debug/
 
 # docker
 docker/volumes
+volumes/
+.DS_Store
