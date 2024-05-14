@@ -1,9 +1,9 @@
-from config import Milvus, Openai, Data
+from config import Milvus, Openai
 from pymilvus import connections, utility, FieldSchema, Collection, CollectionSchema, DataType
 import openai
 from data.data import *
 
-openai.api_key = ""
+openai.api_key = Openai['API_KEY']
 
 def create_collection(collection_name):
     # Connect to Milvus Database
