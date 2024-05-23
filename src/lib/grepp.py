@@ -1,7 +1,5 @@
 import subprocess
-
-EMAIL = 'etri-test@grepp.co'
-PW = '0isfha0!_F__FD12'
+from config import Account
 
 class Grepp:
     def __init__(self) -> None:
@@ -9,12 +7,12 @@ class Grepp:
     
     def session(self):
         cmd = f"""
-                    curl -X 'GET' '{self.base}/login' \
+                    curl -X 'POST' '{self.base}/login' \
                     -H 'accept: application/json' \
                     -H 'Content-Type: application/json' \
                     -d '{
-                        "email": {EMAIL},
-                        "password": {PW}
+                        "email": {Account['EMAIL']},
+                        "password": {Account['PW']}
                     }'
                 """
         token = subprocess.run(
@@ -25,19 +23,20 @@ class Grepp:
     def list_challenges(self, level, language, volume):
         token = self.session()
         print(token)
-        cmd = f"""
-                curl -X 'GET' \
-                '{self.base}challenges?languages%5B%5D={language}&levels%5B%5D={level}&page=1&per_page={volume}' \
-                -H 'accept: application/json'\
-                -H 'Authorization: Bearer {token}'
-            """
-        response = subprocess.run(
-            cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE
-                                    ).stdout.decode("utf-8")
-        print(response)
-        problem_list = []
-        for i in range(len(response.challenges)):
-            print()
+
+        # cmd = f"""
+        #         curl -X 'GET' \
+        #         '{self.base}challenges?languages%5B%5D={language}&levels%5B%5D={level}&page=1&per_page={volume}' \
+        #         -H 'accept: application/json'\
+        #         -H 'Authorization: Bearer {token}'
+        #     """
+        # response = subprocess.run(
+        #     cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE
+        #                             ).stdout.decode("utf-8")
+        # print(response)
+        # problem_list = []
+        # for i in range(len(response.challenges)):
+        #     print()
         
     
     def get_challenge(self, id): # 

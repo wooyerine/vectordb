@@ -1,8 +1,8 @@
 import argparse
 import openai
-from vecdb import *
-from grepp import *
-from leetcode import *
+from lib.vecdb import *
+from lib.grepp import *
+from lib.leetcode import *
 
 openai.api_key = ""
 

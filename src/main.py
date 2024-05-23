@@ -1,10 +1,10 @@
 import argparse, os
-from leetcode import *
-from grepp import *
-from vecdb import *
+from lib.leetcode import *
+from lib.grepp import *
+from lib.vecdb import *
 import openai
-from llama_index.core import VectorStoreIndex,SimpleDirectoryReader,ServiceContext,PromptTemplate
-from llama_index.vector_stores.milvus import MilvusVectorStore
+# from llama_index.core import VectorStoreIndex,SimpleDirectoryReader,ServiceContext,PromptTemplate
+# from llama_index.vector_stores.milvus import MilvusVectorStore
 
 MODEL = 'gpt-3.5-turbo'
 RESULT_PATH = './query/result.txt'
@@ -34,6 +34,7 @@ if __name__ == '__main__':
             milvus.ingest(collection=collection, data=problems)
     if args.service == 'grepp':
         grepp = Grepp()
+        print('make grepp instance')
         problems = grepp.list_challenges(args.level, args.language, args.volume)
         # milvus.ingest(collection=collection, data=problems)
         # print(args.number)
