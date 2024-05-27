@@ -1,5 +1,5 @@
 import subprocess
-from config import Account
+from lib.config import Account
 
 class Grepp:
     def __init__(self) -> None:

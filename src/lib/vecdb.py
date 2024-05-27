@@ -7,8 +7,8 @@ from pymilvus import (
 )
 import openai
 import json
-from logging_ import to_file
-from config import Milvus, Openai
+from lib.logging_ import to_file
+from lib.config import Milvus, Openai
 
 openai.api_key = Openai['API_KEY']
 
@@ -17,10 +17,10 @@ class VectorDB():
         pass
 
     def connect(self, service):
-        connections.connect(host=f'{Milvus['HOST']}', port=Milvus['PORT'])
+        connections.connect(host=Milvus['HOST'], port=Milvus['PORT'])
         if service == 'leetcode':
-            # if utility.has_collection(f'{service}'):
-            #     utility.drop_collection(f'{service}')
+            if utility.has_collection(f'{service}'):
+                utility.drop_collection(f'{service}')
             fields = [
               FieldSchema(name='id', dtype=DataType.INT64, is_primary=True, auto_id=True),
               FieldSchema(name='pNumber', dtype=DataType.INT64),
@@ -38,8 +38,8 @@ class VectorDB():
             collection.load()
             return collection
         if service == 'grepp':
-            # if utility.has_collection(f'{service}'):
-            #     utility.drop_collection(f'{service}')
+            if utility.has_collection(f'{service}'):
+                utility.drop_collection(f'{service}')
             fields = [
               FieldSchema(name='id', dtype=DataType.INT64, is_primary=True, auto_id=True),
               FieldSchema(name='pNumber', dtype=DataType.INT64),
