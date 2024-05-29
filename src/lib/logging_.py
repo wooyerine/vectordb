@@ -7,8 +7,8 @@ def to_file(path, data, type=None):
   while os.path.exists(path):
       path = f'{base}_{formatted_time}{extension}'
   if type == 'json':
-    with open(f"{path}-{formatted_time}", "w") as json_file:
-      json.dump(data, json_file)
+    with open(f"{path}", "w", encoding='utf-8') as json_file:
+      json.dump(data, json_file, ensure_ascii=False)
   else:
     with open(path, 'w') as f:
       f.write(data)
