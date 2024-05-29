@@ -13,7 +13,7 @@ def arg_parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('--service', type=str, choices=['leetcode', 'grepp'])
     parser.add_argument('--number', nargs='+', type=int, help='"problem_number, problem_number, ..."')
-    parser.add_argument('--level', type=str, choices=['h', 'm', 'e', '1', '2', '3', '4', '5', 'all'])
+    parser.add_argument('--level', nargs='*', type=str, choices=['h', 'm', 'e', 'all'])
     parser.add_argument('--language', default='python3', type=str)
     parser.add_argument('--volume', type=int, help='how many problems to ingest')
     args = parser.parse_args()
@@ -35,11 +35,11 @@ if __name__ == '__main__':
     if args.service == 'grepp':
         grepp = Grepp()
         print('make grepp instance')
-        problems = grepp.list_challenges(args.level, args.language, args.volume)
+        # if not os.path.exists('../data/grepp.json'):
+    #     grepp.list_challenges(args.language)
+        problems = grepp.refine_data('../data/grepp_20240528-162405.json')
         # milvus.ingest(collection=collection, data=problems)
-        # print(args.number)
-        # print(args.volume)
-    
+        
     # vector_store = MilvusVectorStore(
     #     host = "localhost",
     #     port = "19530",
