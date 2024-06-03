@@ -2,8 +2,8 @@ import subprocess, time, re
 from tqdm import tqdm
 from lib.logging_ import to_file
 
-FILE_PATH = "../data/leetcode.json"
-SOURCE_PATH = './data/leetcode-source-file'
+FILE_PATH = "../data/leetcode/leetcode.json"
+SOURCE_PATH = './data/leetcode/leetcode-source-file'
 
 class Leetcode:
   def __init__(self) -> None:

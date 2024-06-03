@@ -15,7 +15,7 @@ class Grepp:
             print(f'{response}')
         return response.json()['token']
     
-    def list_challenges(self, language):
+    def list_challenges(self):
         PER_PAGE = 50
         # PER_PAGE = 2
         print(self.token)
@@ -50,7 +50,7 @@ class Grepp:
                 # print(solutions)
                 tmp['challenges'][i].update(detail)
                 tmp['challenges'][i].update(solutions)
-            to_file(f'../data/grepp-{page}.json', tmp, type='json')
+            to_file(f'./data/grepp/{page}.json', tmp, type='json')
     
     def get_challenge(self, id): # 
         response = requests.get(
@@ -83,7 +83,7 @@ class Grepp:
             print('Key "solutionGroups" does not exist in the response')
         return solutions
 
-    def refine_data(self, path):
+    def refine_data(self):
         array = [
             [], # 0 pNumber
             [], # 1 title
@@ -96,8 +96,9 @@ class Grepp:
             [], # 8 testcases
             [], # 9 solution-python
         ]
-        with open(f'{path}', 'r') as f:
-            json_data = json.load(f)
-        # print(json_data)
-        problems = json_data['challenges']
-        print(len(problems))
+        for i in range(11):
+            with open(f'{i}_20240530-*.json', 'r') as f:
+                json_data = json.load(f)
+            # print(json_data)
+            problems = json_data['challenges']
+            print(len(problems))

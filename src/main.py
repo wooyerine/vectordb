@@ -23,7 +23,10 @@ def arg_parse():
 if __name__ == '__main__':
     args = arg_parse()
     milvus = VectorDB()
-    collection = milvus.connect(args.service)
+    try:
+        collection = milvus.connect(args.service)
+    except ConnectionError:
+        print(f'Check docker is started or Milvus is connected')
     if args.service == 'leetcode':
         leetcode = Leetcode()
         if args.number:
@@ -36,8 +39,8 @@ if __name__ == '__main__':
         grepp = Grepp()
         print('make grepp instance')
         # if not os.path.exists('../data/grepp.json'):
-    #     grepp.list_challenges(args.language)
-        problems = grepp.refine_data('../data/grepp_20240528-162405.json')
+        # grepp.list_challenges()
+        problems = grepp.refine_data()
         # milvus.ingest(collection=collection, data=problems)
         
     # vector_store = MilvusVectorStore(
