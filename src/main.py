@@ -38,9 +38,9 @@ if __name__ == '__main__':
     if args.service == 'grepp':
         grepp = Grepp()
         print('make grepp instance')
-        # if not os.path.exists('../data/grepp.json'):
-        # grepp.list_challenges()
-        problems = grepp.refine_data()
+        if not os.path.exists('./data/grepp'):
+            grepp.list_challenges()
+        problems = grepp.refine_data('./data/grepp')
         # milvus.ingest(collection=collection, data=problems)
         
     # vector_store = MilvusVectorStore(

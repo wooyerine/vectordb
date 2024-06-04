@@ -50,7 +50,7 @@ class Grepp:
                 # print(solutions)
                 tmp['challenges'][i].update(detail)
                 tmp['challenges'][i].update(solutions)
-            to_file(f'./data/grepp/{page}.json', tmp, type='json')
+            to_file('./data/grepp', f'{page}.json', tmp, data_type='json')
     
     def get_challenge(self, id): # 
         response = requests.get(
@@ -83,7 +83,7 @@ class Grepp:
             print('Key "solutionGroups" does not exist in the response')
         return solutions
 
-    def refine_data(self):
+    def refine_data(self, path):
         array = [
             [], # 0 pNumber
             [], # 1 title
@@ -96,9 +96,25 @@ class Grepp:
             [], # 8 testcases
             [], # 9 solution-python
         ]
-        for i in range(11):
-            with open(f'{i}_20240530-*.json', 'r') as f:
+        for i in tqdm(range(11)):
+            with open(f'{path}/{i}.json', 'r') as f:
                 json_data = json.load(f)
             # print(json_data)
             problems = json_data['challenges']
             print(len(problems))
+            for j in tqdm(range(len(problems))):
+                # example extraction
+                
+                array[0].append(problems[j]['id'])
+                array[1].append(problems[j]['title'])
+                array[2].append(problems[j]['partTitle'])
+                array[3].append(problems[j]['languages'])
+                array[4].append(problems[j]['level'])
+                array[5].append(problems[j]['description'])
+                # array[6].append(problems[j]['example'])
+                # array[7].append(problems[j]['constraint'])
+                # array[8].append(problems[j]['testcases'])
+                # array[9].append(problems[j]['solutionGroups'])
+            print(array)
+            print(problems['a'])
+            

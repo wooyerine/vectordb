@@ -50,7 +50,7 @@ class VectorDB():
               FieldSchema(name='description', dtype=DataType.VARCHAR, max_length=64000),
               FieldSchema(name='example', dtype=DataType.VARCHAR, max_length=64000),
               FieldSchema(name='constraint', dtype=DataType.VARCHAR, max_length=64000),
-              FieldSchema(name='testCase', dtype=DataType.VARCHAR, max_length=64000),
+              FieldSchema(name='testCase', dtype=DataType.ARRAY, max_length=64000),
             #   FieldSchema(name='output', dtype=DataType.VARCHAR, max_length=64000),
               FieldSchema(name='embedding', dtype=DataType.FLOAT_VECTOR, dim=Milvus['DIMENSION']),
             ]
