@@ -1,14 +1,16 @@
 import requests, json
 from tqdm import tqdm
-from lib.config import Account
+from lib.config import Account, Milvus
 from lib.logging_ import to_file
+from lib.vecdb import *
 
 class Grepp:
     def __init__(self):
-        self.base = 'https://etri.programmers.co.kr/api/v1/etri'
-        self.token = self.get_token()
+        pass
     
     def get_token(self):
+        self.base = 'https://etri.programmers.co.kr/api/v1/etri'
+        self.token = self.get_token()
         try:
             response = requests.post(f'{self.base}/login', json={'email':Account['EMAIL'], 'password':Account["PW"]},)
         except SystemError:
@@ -83,9 +85,31 @@ class Grepp:
             print('Key "solutionGroups" does not exist in the response')
         return solutions
 
-    def refine_data(self, path):
+def refine_data(path):
+    from pymilvus import (
+        FieldSchema, DataType
+    )
+    milvus = VectorDB()
+
+    fields = [
+        FieldSchema(name='id', dtype=DataType.INT64, is_primary=True, auto_id=True),
+        FieldSchema(name='problem_id', dtype=DataType.INT64),
+        FieldSchema(name='title', dtype=DataType.VARCHAR, max_length=64000),
+        FieldSchema(name='partTitle', dtype=DataType.VARCHAR, max_length=64000),
+        FieldSchema(name='languages', dtype=DataType.ARRAY, element_type=DataType.VARCHAR, max_capacity=900, max_length=1000),
+        FieldSchema(name='level', dtype=DataType.INT64),
+        FieldSchema(name='description', dtype=DataType.VARCHAR, max_length=64000),
+        FieldSchema(name='examples', dtype=DataType.VARCHAR, max_length=64000),
+        FieldSchema(name='constraints', dtype=DataType.VARCHAR, max_length=64000),
+        FieldSchema(name='testCases', dtype=DataType.ARRAY, element_type=DataType.VARCHAR, max_capacity=900, max_length=1000),
+        FieldSchema(name='desc_embedding', dtype=DataType.FLOAT_VECTOR, dim=Milvus['DIMENSION']),
+    ]
+
+    collection = milvus.connect(collection_name='grepp', fields=fields, embed_field='desc_embedding')
+    
+    for i in tqdm(range(11)):
         array = [
-            [], # 0 pNumber
+            [], # 0 problem_id
             [], # 1 title
             [], # 2 partTitle
             [], # 3 languages
@@ -94,27 +118,33 @@ class Grepp:
             [], # 6 example
             [], # 7 constraint
             [], # 8 testcases
-            [], # 9 solution-python
         ]
-        for i in tqdm(range(11)):
-            with open(f'{path}/{i}.json', 'r') as f:
-                json_data = json.load(f)
-            # print(json_data)
-            problems = json_data['challenges']
-            print(len(problems))
-            for j in tqdm(range(len(problems))):
-                # example extraction
-                
-                array[0].append(problems[j]['id'])
-                array[1].append(problems[j]['title'])
-                array[2].append(problems[j]['partTitle'])
-                array[3].append(problems[j]['languages'])
-                array[4].append(problems[j]['level'])
-                array[5].append(problems[j]['description'])
-                # array[6].append(problems[j]['example'])
-                # array[7].append(problems[j]['constraint'])
-                # array[8].append(problems[j]['testcases'])
-                # array[9].append(problems[j]['solutionGroups'])
-            print(array)
-            print(problems['a'])
-            
+        with open(f'{path}/{i}.json', 'r') as f:
+            json_data = json.load(f)
+        # print(json_data)
+        problems = json_data['challenges']
+        print(len(problems))
+        for j in tqdm(range(len(problems))):
+            # constrinats, example, description extraction
+            full_text = problems[j]['description']
+            part_limits = ["##### 제한사항", "##### 입출력 예"]
+            splits = [full_text.find(part) for part in part_limits]
+            description_part = full_text[:splits[0]].strip()
+            constraints_part = full_text[splits[0]:splits[1]].strip()
+            example_part = full_text[splits[1]:].strip()
+
+            # testcases: convert object to string
+            testcases = problems[j]['testcases']
+            stringed = [str(item) for item in testcases]
+
+            array[0].append(problems[j]['id'])
+            array[1].append(problems[j]['title'])
+            array[2].append(problems[j]['partTitle'])
+            array[3].append(problems[j]['languages'])
+            array[4].append(problems[j]['level'])
+            array[5].append(description_part)
+            array[6].append(example_part)
+            array[7].append(constraints_part)
+            array[8].append(stringed)
+        milvus.ingest(collection=collection, data=array, embed_target=array[5])
+    

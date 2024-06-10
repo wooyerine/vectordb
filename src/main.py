@@ -23,24 +23,26 @@ def arg_parse():
 if __name__ == '__main__':
     args = arg_parse()
     milvus = VectorDB()
-    try:
-        collection = milvus.connect(args.service)
-    except ConnectionError:
-        print(f'Check docker is started or Milvus is connected')
-    if args.service == 'leetcode':
-        leetcode = Leetcode()
-        if args.number:
-            problem = leetcode.get_problem(args.number, args.language)
-            milvus.ingest(collection=collection, data=problem)
-        if args.level:
-            problems = leetcode.get_problems_with_level(args.language, args.level, args.volume)
-            milvus.ingest(collection=collection, data=problems)
+    # try:
+    #     collection = milvus.connect(args.service)
+    # except ConnectionError:
+    #     print(f'Check docker is started or Milvus is connected')
+    # if args.service == 'leetcode':
+    #     leetcode = Leetcode()
+    #     if args.number:
+    #         problem = leetcode.get_problem(args.number, args.language)
+    #         milvus.ingest(collection=collection, data=problem)
+    #     if args.level:
+    #         problems = leetcode.get_problems_with_level(args.language, args.level, args.volume)
+    #         milvus.ingest(collection=collection, data=problems)
     if args.service == 'grepp':
         grepp = Grepp()
         print('make grepp instance')
         if not os.path.exists('./data/grepp'):
             grepp.list_challenges()
-        problems = grepp.refine_data('./data/grepp')
+        print(f"===== Start Refine data ===== ")
+        problems = refine_data('./data/grepp')
+        print(f"===== End Refine data ===== ")
         # milvus.ingest(collection=collection, data=problems)
         
     # vector_store = MilvusVectorStore(
