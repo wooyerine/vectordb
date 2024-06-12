@@ -1,4 +1,4 @@
-import requests, json
+import requests, json, argparse, os
 from tqdm import tqdm
 from lib.config import Account, Milvus
 from lib.logging_ import to_file
@@ -49,7 +49,7 @@ class Grepp:
                 print(tmp['challenges'][i]['id'])
                 detail = self.get_challenge(tmp['challenges'][i]['id'])
                 solutions = self.get_solution_groups(tmp["challenges"][i]['id'])
-                # print(solutions)
+
                 tmp['challenges'][i].update(detail)
                 tmp['challenges'][i].update(solutions)
             to_file('./data/grepp', f'{page}.json', tmp, data_type='json')
@@ -85,29 +85,11 @@ class Grepp:
             print('Key "solutionGroups" does not exist in the response')
         return solutions
 
-def refine_data(path):
-    from pymilvus import (
-        FieldSchema, DataType
-    )
+def insert_problem_info(path, volume):
     milvus = VectorDB()
-
-    fields = [
-        FieldSchema(name='id', dtype=DataType.INT64, is_primary=True, auto_id=True),
-        FieldSchema(name='problem_id', dtype=DataType.INT64),
-        FieldSchema(name='title', dtype=DataType.VARCHAR, max_length=64000),
-        FieldSchema(name='partTitle', dtype=DataType.VARCHAR, max_length=64000),
-        FieldSchema(name='languages', dtype=DataType.ARRAY, element_type=DataType.VARCHAR, max_capacity=900, max_length=1000),
-        FieldSchema(name='level', dtype=DataType.INT64),
-        FieldSchema(name='description', dtype=DataType.VARCHAR, max_length=64000),
-        FieldSchema(name='examples', dtype=DataType.VARCHAR, max_length=64000),
-        FieldSchema(name='constraints', dtype=DataType.VARCHAR, max_length=64000),
-        FieldSchema(name='testCases', dtype=DataType.ARRAY, element_type=DataType.VARCHAR, max_capacity=900, max_length=1000),
-        FieldSchema(name='desc_embedding', dtype=DataType.FLOAT_VECTOR, dim=Milvus['DIMENSION']),
-    ]
-
-    collection = milvus.connect(collection_name='grepp', fields=fields, embed_field='desc_embedding')
+    collection = milvus.connect_collection(collection_name="grepp")
     
-    for i in tqdm(range(11)):
+    for i in tqdm(range(volume)):
         array = [
             [], # 0 problem_id
             [], # 1 title
@@ -121,7 +103,7 @@ def refine_data(path):
         ]
         with open(f'{path}/{i}.json', 'r') as f:
             json_data = json.load(f)
-        # print(json_data)
+
         problems = json_data['challenges']
         print(len(problems))
         for j in tqdm(range(len(problems))):
@@ -146,5 +128,58 @@ def refine_data(path):
             array[6].append(example_part)
             array[7].append(constraints_part)
             array[8].append(stringed)
+        print(f"===== Start Inserting data to '{collection.name}' ===== ")
         milvus.ingest(collection=collection, data=array, embed_target=array[5])
+        print(f"===== End Inserting data to '{collection.name}' ===== ")
     
+def insert_problem_solution(path, volume):
+    milvus = VectorDB()
+    collection = milvus.connect_collection(collection_name="grepp_solution")
+    
+    for i in tqdm(range(volume)):
+        array = [
+            [], # 0 challenge_id
+            [], # 1 solution_id
+            [], # 2 code
+        ]
+        with open(f'{path}/{i}.json', 'r') as f:
+            json_data = json.load(f)
+
+        problems = json_data['challenges']
+        print(len(problems))
+        # Initialize separate lists for ids, challengeIds, and codes
+
+        # Filter solutionGroups by language 'python3' for each problem
+        for problem in problems:
+            for solution_group in problem['solutionGroups']:
+                if solution_group['language'] == 'python3':
+                    array[0].append(solution_group['challengeId'])
+                    array[1].append(solution_group['id'])
+                    array[2].append(solution_group['code'])
+        print(f"===== Start Inserting data to '{collection.name}' ===== ")
+        milvus.ingest(collection=collection, data=array, embed_target=array[2])
+        print(f"===== End Inserting data to '{collection.name}'   ===== ")
+
+if __name__ == "__main__":
+    from config import Account, Milvus
+    from logging_ import to_file
+    from vecdb import *
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--extract', default=False, type=bool)
+    parser.add_argument('--insert', type=str, choices=['data', 'solution'])
+    parser.add_argument('--path', required=True, type=str)
+    parser.add_argument('--volume', default=11, type=int)
+    args = parser.parse_args()
+    
+    grepp = Grepp()
+    if args.extract:
+        if not os.path.exists('./data/grepp'):
+            grepp.list_challenges()
+    if args.insert == 'data':
+        insert_problem_info(args.path, args.volume)
+    if args.insert == 'solution':
+        insert_problem_solution(args.path, args.volume)
+    
+    # $ python3.10 lib/grepp.py --insert data --path ./data/grepp 
+    # $ python3.10 lib/grepp.py --insert solution --path ./data/grepp 
