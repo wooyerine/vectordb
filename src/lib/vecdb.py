@@ -5,7 +5,8 @@ from pymilvus import (
     Collection,
 )
 import openai
-import argparse
+import argparse, sys, os
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from lib.config import Milvus, Openai
 
 openai.api_key = Openai['API_KEY']
@@ -91,7 +92,6 @@ class VectorDB():
 
 if __name__ == "__main__":
     # from logging_ import to_file
-    from config import Milvus, Openai
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--collection', type=str)

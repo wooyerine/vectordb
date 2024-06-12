@@ -1,5 +1,6 @@
-import requests, json, argparse, os
+import requests, json, argparse, os, sys
 from tqdm import tqdm
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from lib.config import Account, Milvus
 from lib.logging_ import to_file
 from lib.vecdb import *
@@ -161,12 +162,9 @@ def insert_problem_solution(path, volume):
         print(f"===== End Inserting data to '{collection.name}'   ===== ")
 
 if __name__ == "__main__":
-    from config import Account, Milvus
-    from logging_ import to_file
-    from vecdb import *
-
     parser = argparse.ArgumentParser()
     parser.add_argument('--extract', default=False, type=bool)
+    
     parser.add_argument('--insert', type=str, choices=['data', 'solution'])
     parser.add_argument('--path', required=True, type=str)
     parser.add_argument('--volume', default=11, type=int)

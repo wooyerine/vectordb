@@ -1,5 +1,7 @@
-import subprocess, time, re, os, argparse, json
+import subprocess, time, re, os, argparse, json, sys
 from tqdm import tqdm
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+
 from lib.logging_ import to_file
 from lib.vecdb import *
 
@@ -144,6 +146,26 @@ class Leetcode:
     if leetcode["problems"]:
       to_file(directory=path, file_name=f'{leetcode["page"]}.json', data=leetcode, data_type='json')
 
+  def get_topics(self, language, level):
+    topics = [
+      "array", "string", "hash-table", "dynamic-programming", "math", 
+      "sorting", "greedy", "depth-first-search", "binary-search",
+      "tree", "breadth-first-search", "matrix", "bit-manipulation", "two-pointers",
+      "binary-tree", "heap-priority-queue", "prefix-sum", "stack", "simulation",
+      "graph", "counting", "design", "sliding-window", "backtracking",
+      "enumeration", "union-find", "linked-list", "ordered-set", "monotonic-stack",
+      "number-theory", "trie", "divide-and-conquer", "bitmask", "recursion",
+      "queue", "segment-tree", "binary-search-tree", "memoization", "geometry",
+      "binary-indexed-tree", "hash-function", "combinatorics", "topological-sort", "string-matching",
+      "shortest-path", "rolling-hash", "Game Theory", "Interactive", "Data Stream",
+      "Brainteaser", "Monotonic Queue", "Randomized", "Merge Sort", "Iterator",
+      "Concurrency", "Doubly-Linked List", "Probability and Statistics", "Quickselect", "Bucket Sort",
+      "Suffix Array", "Minimum Spanning Tree", "Counting Sort", "Shell", "Line Sweep",
+      "Reservoir Sampling", "Strongly Connected Component", "Eulerian Circuit", "Radix Sort", "Rejection Sampling",
+      "Biconnected Component"
+    ]
+    RE = r'\[\s*(\d+)\]'
+
 def insert_problem_info(path, volume):
   milvus = VectorDB()
   collection = milvus.connect_collection(collection_name="leetcode")
@@ -208,12 +230,10 @@ def insert_problem_solution(path, volume):
         print(f"===== End Inserting data to '{collection.name}'   ===== ")
 
 if __name__ == "__main__":
-  from logging_ import to_file
-  from vecdb import *
-  
   parser = argparse.ArgumentParser()
   parser.add_argument('--extract', default=False, type=bool)
   parser.add_argument('--level', type=str)
+  
   parser.add_argument('--insert', type=str, choices=['data', 'solution'])
   parser.add_argument('--path', required=True, type=str)
   parser.add_argument('--volume', required=True, type=int)
