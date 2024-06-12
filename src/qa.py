@@ -23,7 +23,7 @@ if __name__ == '__main__':
     collection = milvus.connect_collection(args.service)
     if args.service == 'leetcode':
         leetcode = Leetcode()
-        problem = json.loads(leetcode.get_problem(args.query, args.language, './result/query'))
+        problem = json.loads(leetcode.get_problem(args.query, args.language, './result/query/leetcode'))
         result = milvus.search(collection=collection, data=problem["description"], target='desc_embedding')
         to_file('./result/query/leetcode', f'response-{args.query}.json', result, 'json')
     if args.service == 'grepp':
