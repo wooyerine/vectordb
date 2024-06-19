@@ -21,47 +21,4 @@ def arg_parse():
     return args
 
 if __name__ == '__main__':
-    args = arg_parse()
-    milvus = VectorDB()
-    # try:
-    #     collection = milvus.connect(args.service)
-    # except ConnectionError:
-    #     print(f'Check docker is started or Milvus is connected')
-    # if args.service == 'leetcode':
-    #     leetcode = Leetcode()
-    #     if args.number:
-    #         problem = leetcode.get_problem(args.number, args.language)
-    #         milvus.ingest(collection=collection, data=problem)
-    #     if args.level:
-    #         problems = leetcode.get_problems_with_level(args.language, args.level, args.volume)
-    #         milvus.ingest(collection=collection, data=problems)
-    if args.service == 'grepp':
-        grepp = Grepp()
-        print('make grepp instance')
-        if not os.path.exists('./data/grepp'):
-            grepp.list_challenges()
-        print(f"===== Start Refine data ===== ")
-        problems = refine_data('./data/grepp')
-        print(f"===== End Refine data ===== ")
-        # milvus.ingest(collection=collection, data=problems)
-        
-    # vector_store = MilvusVectorStore(
-    #     host = "localhost",
-    #     port = "19530",
-    #     collection_name = "leetcode"
-    #   )
-    
-    # index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
-    # query_engine = index.as_query_engine()
-    
-    # response = query_engine.query("Find data about Array")
-    
-    # completion = openai.ChatCompletion.create(
-    #   model=MODEL,
-    #   messages=prompt,
-    #   max_tokens=1024
-    # )
-    
-    
-    
-  
+    print('')

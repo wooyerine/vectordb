@@ -1,0 +1,95 @@
+{
+	"request": {
+		"collection": "leetcode_v2",
+		"anns_field": "embedding",
+		"param": {
+			"metric_type": "L2",
+			"params": {
+				"ef": 64
+			}
+		},
+		"limit": 6,
+		"output_fields": [
+			"problem_id",
+			"title",
+			"level",
+			"description",
+			"examples",
+			"constraints"
+		]
+	},
+	"response": [
+		{
+			"id": 2389,
+			"distance": 0.5544722080230713,
+			"entity": {
+				"problem_id": 2389,
+				"title": "Longest Subsequence With Limited Sum",
+				"level": "Easy",
+				"description": "You are given an integer array nums of length n, and an integer array queries of length m.\n\nReturn an array answer of length m where answer[i] is the maximum size of a subsequence that you can take from nums such that the sum of its elements is less than or equal to queries[i].\n\nA subsequence is an array that can be derived from another array by deleting some or no elements without changing the order of the remaining elements.",
+				"examples": "Example 1:\n\n\nInput: nums = [4,5,2,1], queries = [3,10,21]\nOutput: [2,3,4]\nExplanation: We answer the queries as follows:\n- The subsequence [2,1] has a sum less than or equal to 3. It can be proven that 2 is the maximum size of such a subsequence, so answer[0] = 2.\n- The subsequence [4,5,1] has a sum less than or equal to 10. It can be proven that 3 is the maximum size of such a subsequence, so answer[1] = 3.\n- The subsequence [4,5,2,1] has a sum less than or equal to 21. It can be proven that 4 is the maximum size of such a subsequence, so answer[2] = 4.\n\n\nExample 2:\n\n\nInput: nums = [2,3,4,5], queries = [1]\nOutput: [0]\nExplanation: The empty subsequence is the only subsequence that has a sum less than or equal to 1, so answer[0] = 0.",
+				"constraints": "Constraints:\n\n\n\tn == nums.length\n\tm == queries.length\n\t1 <= n, m <= 1000\n\t1 <= nums[i], queries[i] <= 10^6"
+			}
+		},
+		{
+			"id": 2569,
+			"distance": 0.5793384313583374,
+			"entity": {
+				"problem_id": 2569,
+				"title": "Handling Sum Queries After Update",
+				"level": "Hard",
+				"description": "You are given two 0-indexed arrays nums1 and nums2 and a 2D array queries of queries. There are three types of queries:\n\n\n\tFor a query of type 1, queries[i] = [1, l, r]. Flip the values from 0 to 1 and from 1 to 0 in nums1 from index l to index r. Both l and r are 0-indexed.\n\tFor a query of type 2, queries[i] = [2, p, 0]. For every index 0 <= i < n, set nums2[i] = nums2[i] + nums1[i] * p.\n\tFor a query of type 3, queries[i] = [3, 0, 0]. Find the sum of the elements in nums2.\n\n\nReturn an array containing all the answers to the third type queries.",
+				"examples": "Example 1:\n\n\nInput: nums1 = [1,0,1], nums2 = [0,0,0], queries = [[1,1,1],[2,1,0],[3,0,0]]\nOutput: [3]\nExplanation: After the first query nums1 becomes [1,1,1]. After the second query, nums2 becomes [1,1,1], so the answer to the third query is 3. Thus, [3] is returned.\n\n\nExample 2:\n\n\nInput: nums1 = [1], nums2 = [5], queries = [[2,0,0],[3,0,0]]\nOutput: [5]\nExplanation: After the first query, nums2 remains [5], so the answer to the second query is 5. Thus, [5] is returned.",
+				"constraints": "Constraints:\n\n\n\t1 <= nums1.length,nums2.length <= 10^5\n\tnums1.length = nums2.length\n\t1 <= queries.length <= 10^5\n\tqueries[i].length = 3\n\t0 <= l <= r <= nums1.length - 1\n\t0 <= p <= 10^6\n\t0 <= nums1[i] <= 1\n\t0 <= nums2[i] <= 10^9"
+			}
+		},
+		{
+			"id": 3080,
+			"distance": 0.5984212756156921,
+			"entity": {
+				"problem_id": 3080,
+				"title": "Mark Elements on Array by Performing Queries",
+				"level": "Medium",
+				"description": "You are given a 0-indexed array nums of size n consisting of positive integers.\n\nYou are also given a 2D array queries of size m where queries[i] = [indexi, ki].\n\nInitially all elements of the array are unmarked.\n\nYou need to apply m queries on the array in order, where on the i^th query you do the following:\n\n\n\tMark the element at index indexi if it is not already marked.\n\tThen mark ki unmarked elements in the array with the smallest values. If multiple such elements exist, mark the ones with the smallest indices. And if less than ki unmarked elements exist, then mark all of them.\n\n\nReturn an array answer of size m where answer[i] is the sum of unmarked elements in the array after the i^th query.",
+				"examples": "Example 1:\n\n\nInput: nums = [1,2,2,1,2,3,1], queries = [[1,2],[3,3],[4,2]]\n\nOutput: [8,3,0]\n\nExplanation:\n\nWe do the following queries on the array:\n\n\n\tMark the element at index 1, and 2 of the smallest unmarked elements with the smallest indices if they exist, the marked elements now are nums = [1,2,2,1,2,3,1]. The sum of unmarked elements is 2 + 2 + 3 + 1 = 8.\n\tMark the element at index 3, since it is already marked we skip it. Then we mark 3 of the smallest unmarked elements with the smallest indices, the marked elements now are nums = [1,2,2,1,2,3,1]. The sum of unmarked elements is 3.\n\tMark the element at index 4, since it is already marked we skip it. Then we mark 2 of the smallest unmarked elements with the smallest indices if they exist, the marked elements now are nums = [1,2,2,1,2,3,1]. The sum of unmarked elements is 0.\n\n\n\nExample 2:\n\n\nInput: nums = [1,4,2,3], queries = [[0,1]]\n\nOutput: [7]\n\nExplanation:  We do one query which is mark the element at index 0 and mark the smallest element among unmarked elements. The marked elements will be nums = [1,4,2,3], and the sum of unmarked elements is 4 + 3 = 7.",
+				"constraints": "Constraints:\n\n\n\tn == nums.length\n\tm == queries.length\n\t1 <= m <= n <= 10^5\n\t1 <= nums[i] <= 10^5\n\tqueries[i].length == 2\n\t0 <= indexi, ki <= n - 1"
+			}
+		},
+		{
+			"id": 2736,
+			"distance": 0.598779559135437,
+			"entity": {
+				"problem_id": 2736,
+				"title": "Maximum Sum Queries",
+				"level": "Hard",
+				"description": "You are given two 0-indexed integer arrays nums1 and nums2, each of length n, and a 1-indexed 2D array queries where queries[i] = [xi, yi].\n\nFor the i^th query, find the maximum value of nums1[j] + nums2[j] among all indices j (0 <= j < n), where nums1[j] >= xi and nums2[j] >= yi, or -1 if there is no j satisfying the constraints.\n\nReturn an array answer where answer[i] is the answer to the i^th query.",
+				"examples": "Example 1:\n\n\nInput: nums1 = [4,3,1,2], nums2 = [2,4,9,5], queries = [[4,1],[1,3],[2,5]]\nOutput: [6,10,7]\nExplanation: \nFor the 1st query xi = 4 and yi = 1, we can select index j = 0 since nums1[j] >= 4 and nums2[j] >= 1. The sum nums1[j] + nums2[j] is 6, and we can show that 6 is the maximum we can obtain.\n\nFor the 2nd query xi = 1 and yi = 3, we can select index j = 2 since nums1[j] >= 1 and nums2[j] >= 3. The sum nums1[j] + nums2[j] is 10, and we can show that 10 is the maximum we can obtain. \n\nFor the 3rd query xi = 2 and yi = 5, we can select index j = 3 since nums1[j] >= 2 and nums2[j] >= 5. The sum nums1[j] + nums2[j] is 7, and we can show that 7 is the maximum we can obtain.\n\nTherefore, we return [6,10,7].\n\n\nExample 2:\n\n\nInput: nums1 = [3,2,5], nums2 = [2,3,4], queries = [[4,4],[3,2],[1,1]]\nOutput: [9,9,9]\nExplanation: For this example, we can use index j = 2 for all the queries since it satisfies the constraints for each query.\n\n\nExample 3:\n\n\nInput: nums1 = [2,1], nums2 = [2,3], queries = [[3,3]]\nOutput: [-1]\nExplanation: There is one query in this example with xi = 3 and yi = 3. For every index, j, either nums1[j] < xi or nums2[j] < yi. Hence, there is no solution.",
+				"constraints": "Constraints:\n\n\n\tnums1.length == nums2.length \n\tn == nums1.length \n\t1 <= n <= 10^5\n\t1 <= nums1[i], nums2[i] <= 10^9 \n\t1 <= queries.length <= 10^5\n\tqueries[i].length == 2\n\txi == queries[i][1]\n\tyi == queries[i][2]\n\t1 <= xi, yi <= 10^9"
+			}
+		},
+		{
+			"id": 985,
+			"distance": 0.6212173700332642,
+			"entity": {
+				"problem_id": 985,
+				"title": "Sum of Even Numbers After Queries",
+				"level": "Medium",
+				"description": "You are given an integer array nums and an array queries where queries[i] = [vali, indexi].\n\nFor each query i, first, apply nums[indexi] = nums[indexi] + vali, then print the sum of the even values of nums.\n\nReturn an integer array answer where answer[i] is the answer to the i^th query.",
+				"examples": "Example 1:\n\n\nInput: nums = [1,2,3,4], queries = [[1,0],[-3,1],[-4,0],[2,3]]\nOutput: [8,6,2,4]\nExplanation: At the beginning, the array is [1,2,3,4].\nAfter adding 1 to nums[0], the array is [2,2,3,4], and the sum of even values is 2 + 2 + 4 = 8.\nAfter adding -3 to nums[1], the array is [2,-1,3,4], and the sum of even values is 2 + 4 = 6.\nAfter adding -4 to nums[0], the array is [-2,-1,3,4], and the sum of even values is -2 + 4 = 2.\nAfter adding 2 to nums[3], the array is [-2,-1,3,6], and the sum of even values is -2 + 6 = 4.\n\n\nExample 2:\n\n\nInput: nums = [1], queries = [[4,0]]\nOutput: [0]",
+				"constraints": "Constraints:\n\n\n\t1 <= nums.length <= 10^4\n\t-10^4 <= nums[i] <= 10^4\n\t1 <= queries.length <= 10^4\n\t-10^4 <= vali <= 10^4\n\t0 <= indexi < nums.length"
+			}
+		},
+		{
+			"id": 2382,
+			"distance": 0.6808868050575256,
+			"entity": {
+				"problem_id": 2382,
+				"title": "Maximum Segment Sum After Removals",
+				"level": "Hard",
+				"description": "You are given two 0-indexed integer arrays nums and removeQueries, both of length n. For the i^th query, the element in nums at the index removeQueries[i] is removed, splitting nums into different segments.\n\nA segment is a contiguous sequence of positive integers in nums. A segment sum is the sum of every element in a segment.\n\nReturn an integer array answer, of length n, where answer[i] is the maximum segment sum after applying the i^th removal.\n\nNote: The same index will not be removed more than once.",
+				"examples": "Example 1:\n\n\nInput: nums = [1,2,5,6,1], removeQueries = [0,3,2,4,1]\nOutput: [14,7,2,2,0]\nExplanation: Using 0 to indicate a removed element, the answer is as follows:\nQuery 1: Remove the 0th element, nums becomes [0,2,5,6,1] and the maximum segment sum is 14 for segment [2,5,6,1].\nQuery 2: Remove the 3rd element, nums becomes [0,2,5,0,1] and the maximum segment sum is 7 for segment [2,5].\nQuery 3: Remove the 2nd element, nums becomes [0,2,0,0,1] and the maximum segment sum is 2 for segment [2]. \nQuery 4: Remove the 4th element, nums becomes [0,2,0,0,0] and the maximum segment sum is 2 for segment [2]. \nQuery 5: Remove the 1st element, nums becomes [0,0,0,0,0] and the maximum segment sum is 0, since there are no segments.\nFinally, we return [14,7,2,2,0].\n\nExample 2:\n\n\nInput: nums = [3,2,11,1], removeQueries = [3,2,1,0]\nOutput: [16,5,3,0]\nExplanation: Using 0 to indicate a removed element, the answer is as follows:\nQuery 1: Remove the 3rd element, nums becomes [3,2,11,0] and the maximum segment sum is 16 for segment [3,2,11].\nQuery 2: Remove the 2nd element, nums becomes [3,2,0,0] and the maximum segment sum is 5 for segment [3,2].\nQuery 3: Remove the 1st element, nums becomes [3,0,0,0] and the maximum segment sum is 3 for segment [3].\nQuery 4: Remove the 0th element, nums becomes [0,0,0,0] and the maximum segment sum is 0, since there are no segments.\nFinally, we return [16,5,3,0].",
+				"constraints": "Constraints:\n\n\n\tn == nums.length == removeQueries.length\n\t1 <= n <= 10^5\n\t1 <= nums[i] <= 10^9\n\t0 <= removeQueries[i] < n\n\tAll the values of removeQueries are unique."
+			}
+		}
+	]
+}

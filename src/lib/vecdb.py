@@ -53,7 +53,7 @@ class VectorDB():
         )
         return result
 
-    def search(self, collection, data, target, top_k=6):
+    def search(self, collection, data, target, top_k=5):
         result = {}
         output_fields = ['problem_id', 'title', 'level',  'description', 'examples', 'constraints']
         outputs = collection.search(
@@ -85,7 +85,7 @@ class VectorDB():
                 "limit": top_k,
                 "output_fields": output_fields,
             },
-            "response": response
+            "response": sorted(response, key=lambda x: x['distance'])
         }
 
         return result
@@ -128,6 +128,21 @@ if __name__ == "__main__":
         FieldSchema(name='desc_embedding', dtype=DataType.FLOAT_VECTOR, dim=Milvus['DIMENSION']),
     ]
 
+    leetcode_v2_fields = [
+    #   FieldSchema(name='id', dtype=DataType.INT64, is_primary=True, auto_id=True),
+      FieldSchema(name='problem_id', dtype=DataType.INT64, is_primary=True, auto_id=False),
+      FieldSchema(name='title', dtype=DataType.VARCHAR, max_length=64000),
+      FieldSchema(name='topic', dtype=DataType.ARRAY, element_type=DataType.VARCHAR, max_capacity=900, max_length=1000),
+      FieldSchema(name='languages', dtype=DataType.ARRAY, element_type=DataType.VARCHAR, max_capacity=900, max_length=1000),
+      FieldSchema(name='level', dtype=DataType.VARCHAR, max_length=64000),
+      FieldSchema(name='description', dtype=DataType.VARCHAR, max_length=64000),
+      FieldSchema(name='examples', dtype=DataType.VARCHAR, max_length=64000),
+      FieldSchema(name='constraints', dtype=DataType.VARCHAR, max_length=64000),
+      FieldSchema(name='testcases', dtype=DataType.VARCHAR, max_length=64000),
+      FieldSchema(name='code_template', dtype=DataType.VARCHAR, max_length=64000),
+      FieldSchema(name='embedding', dtype=DataType.FLOAT_VECTOR, dim=Milvus['DIMENSION']),
+    ]
+
     grepp_solution_fields = [
         FieldSchema(name='id', dtype=DataType.INT64, is_primary=True, auto_id=True),
         FieldSchema(name='challenge_id', dtype=DataType.INT64),
@@ -148,6 +163,9 @@ if __name__ == "__main__":
         grepp_collection = milvus.create_collection(collection_name='grepp', fields=grepp_fields, embed_field='desc_embedding')
     if args.collection == 'leetcode':
         leetcode_collection = milvus.create_collection(collection_name='leetcode', fields=leetcode_fields, embed_field='desc_embedding')
+    if args.collection == 'leetcode_v2':
+        leetcode_collection = milvus.create_collection(collection_name='leetcode_v2', fields=leetcode_v2_fields, embed_field='embedding')
+    
     if args.collection == 'grepp_solution':
         collection = milvus.create_collection(collection_name='grepp_solution', fields=grepp_solution_fields, embed_field='code_embedding')
     if args.collection == 'leetcode_solution':

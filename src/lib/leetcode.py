@@ -2,7 +2,7 @@ import subprocess, time, re, os, argparse, json, sys
 from tqdm import tqdm
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
-from lib.logging_ import to_file
+from lib.logging_ import to_file, save_json_in_chunks
 from lib.vecdb import *
 
 FILE_PATH = "./data/leetcode"
@@ -146,25 +146,83 @@ class Leetcode:
     if leetcode["problems"]:
       to_file(directory=path, file_name=f'{leetcode["page"]}.json', data=leetcode, data_type='json')
 
-  def get_topics(self, language, level):
+  def get_topics(self):
+    # ANSI 이스케이프 시퀀스를 제거하는 함수
+    def remove_ansi_escape_sequences(text):
+        ansi_escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
+        return ansi_escape.sub('', text)
+
+    # 자물쇠 없는 문제 추출 함수
+    def extract_problems(data, topic):
+        problems = []
+        for item in data.strip().split('\n'):
+            if '\U0001F512' not in item:
+                problem_id_start = item.find('[') + 1
+                problem_id_end = item.find(']')
+                problem_id = item[problem_id_start:problem_id_end].strip()
+
+                # 제목과 난이도 추출
+                title_level = item[problem_id_end + 1:].strip().rsplit('  ', 1)
+                if len(title_level) < 2:
+                    continue  # 제목과 난이도가 모두 있는 항목만 처리
+                title = title_level[0].strip()
+                level = remove_ansi_escape_sequences(title_level[1]).strip()
+                
+                problems.append({
+                    "problem_id": problem_id,
+                    "title": title,
+                    "level": level,
+                    "topic": [topic]
+                })
+        return problems
     topics = [
       "array", "string", "hash-table", "dynamic-programming", "math", 
-      "sorting", "greedy", "depth-first-search", "binary-search",
-      "tree", "breadth-first-search", "matrix", "bit-manipulation", "two-pointers",
+      "sorting", "greedy","depth-first-search", "binary-search",
+      "tree", "Breadth-first-search", "matrix", "bit-manipulation", "two-pointers",
       "binary-tree", "heap-priority-queue", "prefix-sum", "stack", "simulation",
       "graph", "counting", "design", "sliding-window", "backtracking",
       "enumeration", "union-find", "linked-list", "ordered-set", "monotonic-stack",
       "number-theory", "trie", "divide-and-conquer", "bitmask", "recursion",
       "queue", "segment-tree", "binary-search-tree", "memoization", "geometry",
       "binary-indexed-tree", "hash-function", "combinatorics", "topological-sort", "string-matching",
-      "shortest-path", "rolling-hash", "Game Theory", "Interactive", "Data Stream",
-      "Brainteaser", "Monotonic Queue", "Randomized", "Merge Sort", "Iterator",
-      "Concurrency", "Doubly-Linked List", "Probability and Statistics", "Quickselect", "Bucket Sort",
-      "Suffix Array", "Minimum Spanning Tree", "Counting Sort", "Shell", "Line Sweep",
-      "Reservoir Sampling", "Strongly Connected Component", "Eulerian Circuit", "Radix Sort", "Rejection Sampling",
-      "Biconnected Component"
+      "shortest-path", "rolling-hash", "game-theory", "interactive", "data-stream",
+      "brainteaser", "monotonic-queue", "randomized", "merge-sort", "iterator",
+      "concurrency", "doubly-linked-list", "probability-and-statistics", "quickselect", "bucket-sort",
+      "suffix-array", "minimum-spanning-tree", "counting-sort", "shell", "line-sweep",
+      "reservoir-sampling", "strongly-connected-component", "eulerian-circuit", "radix-sort", "rejection-sampling",
+      "biconnected-component"
     ]
-    RE = r'\[\s*(\d+)\]'
+    
+    variables = []
+    for topic in tqdm(topics):
+        print(f"======== {topic} ========")
+        raw = subprocess.run(
+                f"leetup list --tag {topic}", 
+                shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE
+            ).stdout.decode("utf-8")
+        time.sleep(3)
+        variables.append((f"{topic}", raw))
+    # 모든 변수를 처리하여 자물쇠 없는 문제 추출
+    all_problems = []
+    for variable_name, variable_data in tqdm(variables):
+        topic = variable_name  # 변수 이름을 토픽으로 사용
+        print(f"======== {topic} ========")
+        problems = extract_problems(variable_data, topic)
+        all_problems.extend(problems)
+    # 문제 번호를 기준으로 합치기
+    combined_problems = {}
+    for problem in all_problems:
+        problem_id = problem["problem_id"]
+        if problem_id in combined_problems:
+            combined_problems[problem_id]["topic"].append(problem["topic"][0])
+        else:
+            combined_problems[problem_id] = problem
+
+    # JSON 형태로 출력
+    combined_problems_list = list(combined_problems.values())
+    # JSON 데이터를 50개씩 쪼개서 저장
+    save_json_in_chunks(combined_problems_list, 100)
+    return combined_problems_list
 
 def insert_problem_info(path, volume):
   milvus = VectorDB()
@@ -203,6 +261,61 @@ def insert_problem_info(path, volume):
     milvus.ingest(collection=collection, data=array, embed_target=array[4])
     print(f"===== End Inserting data to '{collection.name}' ===== ")
     
+def insert_problem_info_v2(path, volume):
+    milvus = VectorDB()
+    collection = milvus.connect_collection(collection_name="leetcode_v2")
+    with open('./data/leetcode/topic.json', 'r') as f:
+      file_data = json.load(f)
+    def topics(problem_id, data):
+      for problem in data:
+        if problem["problem_id"] == str(problem_id):
+            return problem["topic"]
+      return ['']
+    
+    for i in tqdm(range(volume)):
+      tmp = [
+          [], # 0 problem_id
+          [], # 1 title
+          [], # 2 topic
+          [], # 3 languages
+          [], # 4 level
+          [], # 5 description 
+          [], # 6 examples
+          [], # 7 constraints
+          [], # 8 testcases
+          [], # 9 code_template
+          [], # 10 for embedding
+      ]
+      with open(f'{path}/{i}.json', 'r') as f:
+          json_data = json.load(f)
+      # print(json_data)
+      problems = json_data['problems']
+      print(len(problems))
+
+      for j in tqdm(range(len(problems))):
+          print(f"===== Processing: '{problems[j]['problem_id']}' ===== ")
+          topic_data = topics(problems[j]['problem_id'], file_data)
+
+          topics_sum = ''
+          for topic in topic_data:
+              topics_sum = topics_sum + topic
+          tmp[0].append(problems[j]['problem_id'])
+          tmp[1].append(problems[j]['title'])
+          tmp[2].append(topic_data)
+          tmp[3].append(problems[j]['languages'])
+          tmp[4].append(problems[j]['level'])
+          tmp[5].append(problems[j]['description'])
+          tmp[6].append(problems[j]['examples'])
+          tmp[7].append(problems[j]['constraints'])
+          tmp[8].append(problems[j]['testcases'])
+          tmp[9].append(problems[j]['code_template'])
+          tmp[10].append(topics_sum+problems[j]['description']+problems[j]['examples']+problems[j]['constraints']+problems[j]['code_template'])
+      print(f"===== Start Inserting data to '{collection.name}' ===== ")
+      array = tmp[:10]
+      print(len(array))
+      milvus.ingest(collection=collection, data=array, embed_target=tmp[10])
+      print(f"===== End Inserting data to '{collection.name}' ===== ")
+
 def insert_problem_solution(path, volume):
     milvus = VectorDB()
 
@@ -231,15 +344,17 @@ def insert_problem_solution(path, volume):
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
+  parser.add_argument('--topic', default=False, type=bool)
   parser.add_argument('--extract', default=False, type=bool)
   parser.add_argument('--level', type=str)
-  
   parser.add_argument('--insert', type=str, choices=['data', 'solution'])
-  parser.add_argument('--path', required=True, type=str)
-  parser.add_argument('--volume', required=True, type=int)
+  parser.add_argument('--path', type=str)
+  parser.add_argument('--volume', type=int)
   args = parser.parse_args()
 
   leetcode = Leetcode()
+  if args.topic:
+    problem_topics = leetcode.get_topics()
   if args.extract:
     if args.level == 'e':
       if not os.path.exists('./data/leetcode/e'):
@@ -255,7 +370,8 @@ if __name__ == "__main__":
       leetcode.get_problems_with_level('python3', 'h')
 
   if args.insert == 'data':
-    insert_problem_info(args.path, args.volume)
+    # insert_problem_info(args.path, args.volume)
+    insert_problem_info_v2(args.path, args.volume)
   if args.insert == 'solution':
     insert_problem_solution(args.path, args.volume)
 
