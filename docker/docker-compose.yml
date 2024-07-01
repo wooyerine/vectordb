@@ -59,7 +59,7 @@ services:
       - "minio"
   attu:
     container_name: attu
-    image: zilliz/attu:latest
+    image: zilliz/attu:v2.4
     environment:
       MILVUS_URL: milvus-standalone:19530
     ports:
