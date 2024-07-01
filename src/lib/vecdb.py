@@ -8,6 +8,10 @@ import openai
 import argparse, sys, os
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from lib.config import Milvus, Openai
+from lib.fields import (
+    grepp_fields, leetcode_fields, leetcode_v2_fields, robotics_fields,
+    grepp_solution_fields, leetcode_solution_fields
+)
 
 openai.api_key = Openai['API_KEY']
 
@@ -16,18 +20,20 @@ class VectorDB():
         pass
     
     def connect_collection(self, collection_name):
+        print(f"<Collection>:\n -------------\n <Host:Port> {Milvus['HOST']}:{Milvus['PORT']}")
         connections.connect(host=Milvus['HOST'], port=Milvus['PORT'])
         collection = Collection(f"{collection_name}")      # Get an existing collection.
         collection.load()
         return collection
     
     def create_collection(self, collection_name, fields, embed_field):
+        print(f"<Collection>:\n -------------\n <Host:Port> {Milvus['HOST']}:{Milvus['PORT']}")
         connections.connect(host=Milvus['HOST'], port=Milvus['PORT'])
         
         if utility.has_collection(f'{collection_name}'):
             utility.drop_collection(f'{collection_name}')
         
-        schema = CollectionSchema(fields=fields)
+        schema = CollectionSchema(fields=fields, enable_dynamic_field=True)
         collection = Collection(name=f'{collection_name}', schema=schema)
         collection.create_index(field_name=f"{embed_field}", index_params=Milvus['INDEX_PARAM'])
         collection.load()
@@ -53,9 +59,9 @@ class VectorDB():
         )
         return result
 
-    def search(self, collection, data, target, top_k=5):
+    def search(self, collection, data, target, top_k=5, output_fields=['problem_id', 'title', 'level',  'description', 'examples', 'constraints']):
         result = {}
-        output_fields = ['problem_id', 'title', 'level',  'description', 'examples', 'constraints']
+        # output_fields = ['problem_id', 'title', 'level',  'description', 'examples', 'constraints']
         outputs = collection.search(
             data=self.embed(data), 
             anns_field=target, 
@@ -99,75 +105,29 @@ if __name__ == "__main__":
     
     milvus = VectorDB()
 
-    leetcode_fields = [
-      FieldSchema(name='id', dtype=DataType.INT64, is_primary=True, auto_id=True),
-      FieldSchema(name='problem_id', dtype=DataType.INT64),
-      FieldSchema(name='title', dtype=DataType.VARCHAR, max_length=64000),
-      FieldSchema(name='languages', dtype=DataType.ARRAY, element_type=DataType.VARCHAR, max_capacity=900, max_length=1000),
-      FieldSchema(name='level', dtype=DataType.VARCHAR, max_length=64000),
-      FieldSchema(name='description', dtype=DataType.VARCHAR, max_length=64000),
-      FieldSchema(name='examples', dtype=DataType.VARCHAR, max_length=64000),
-      FieldSchema(name='constraints', dtype=DataType.VARCHAR, max_length=64000),
-      FieldSchema(name='testcases', dtype=DataType.VARCHAR, max_length=64000),
-      FieldSchema(name='source_code_name', dtype=DataType.VARCHAR, max_length=64000),
-      FieldSchema(name='code_template', dtype=DataType.VARCHAR, max_length=64000),
-      FieldSchema(name='desc_embedding', dtype=DataType.FLOAT_VECTOR, dim=Milvus['DIMENSION']),
-    ]
-
-    grepp_fields = [
-        FieldSchema(name='id', dtype=DataType.INT64, is_primary=True, auto_id=True),
-        FieldSchema(name='problem_id', dtype=DataType.INT64),
-        FieldSchema(name='title', dtype=DataType.VARCHAR, max_length=64000),
-        FieldSchema(name='partTitle', dtype=DataType.VARCHAR, max_length=64000),
-        FieldSchema(name='languages', dtype=DataType.ARRAY, element_type=DataType.VARCHAR, max_capacity=900, max_length=1000),
-        FieldSchema(name='level', dtype=DataType.INT64),
-        FieldSchema(name='description', dtype=DataType.VARCHAR, max_length=64000),
-        FieldSchema(name='examples', dtype=DataType.VARCHAR, max_length=64000),
-        FieldSchema(name='constraints', dtype=DataType.VARCHAR, max_length=64000),
-        FieldSchema(name='testCases', dtype=DataType.ARRAY, element_type=DataType.VARCHAR, max_capacity=900, max_length=1000),
-        FieldSchema(name='desc_embedding', dtype=DataType.FLOAT_VECTOR, dim=Milvus['DIMENSION']),
-    ]
-
-    leetcode_v2_fields = [
-    #   FieldSchema(name='id', dtype=DataType.INT64, is_primary=True, auto_id=True),
-      FieldSchema(name='problem_id', dtype=DataType.INT64, is_primary=True, auto_id=False),
-      FieldSchema(name='title', dtype=DataType.VARCHAR, max_length=64000),
-      FieldSchema(name='topic', dtype=DataType.ARRAY, element_type=DataType.VARCHAR, max_capacity=900, max_length=1000),
-      FieldSchema(name='languages', dtype=DataType.ARRAY, element_type=DataType.VARCHAR, max_capacity=900, max_length=1000),
-      FieldSchema(name='level', dtype=DataType.VARCHAR, max_length=64000),
-      FieldSchema(name='description', dtype=DataType.VARCHAR, max_length=64000),
-      FieldSchema(name='examples', dtype=DataType.VARCHAR, max_length=64000),
-      FieldSchema(name='constraints', dtype=DataType.VARCHAR, max_length=64000),
-      FieldSchema(name='testcases', dtype=DataType.VARCHAR, max_length=64000),
-      FieldSchema(name='code_template', dtype=DataType.VARCHAR, max_length=64000),
-      FieldSchema(name='embedding', dtype=DataType.FLOAT_VECTOR, dim=Milvus['DIMENSION']),
-    ]
-
-    grepp_solution_fields = [
-        FieldSchema(name='id', dtype=DataType.INT64, is_primary=True, auto_id=True),
-        FieldSchema(name='challenge_id', dtype=DataType.INT64),
-        FieldSchema(name='solution_id', dtype=DataType.INT64),
-        FieldSchema(name='code', dtype=DataType.VARCHAR, max_length=64000),
-        FieldSchema(name='code_embedding', dtype=DataType.FLOAT_VECTOR, dim=Milvus['DIMENSION']),
-    ]
-    
-    leetcode_solution_fields = [
-        FieldSchema(name='id', dtype=DataType.INT64, is_primary=True, auto_id=True),
-        FieldSchema(name='problem_id', dtype=DataType.INT64),
-        FieldSchema(name='solution_id', dtype=DataType.INT64),
-        FieldSchema(name='code', dtype=DataType.VARCHAR, max_length=64000),
-        FieldSchema(name='code_embedding', dtype=DataType.FLOAT_VECTOR, dim=Milvus['DIMENSION']),
-    ]
-
     if args.collection == 'grepp':
+        print(f'args.collection: {args.collection}')
         grepp_collection = milvus.create_collection(collection_name='grepp', fields=grepp_fields, embed_field='desc_embedding')
     if args.collection == 'leetcode':
+        print(f'args.collection: {args.collection}')
         leetcode_collection = milvus.create_collection(collection_name='leetcode', fields=leetcode_fields, embed_field='desc_embedding')
     if args.collection == 'leetcode_v2':
+        print(f'args.collection: {args.collection}')
         leetcode_collection = milvus.create_collection(collection_name='leetcode_v2', fields=leetcode_v2_fields, embed_field='embedding')
     
     if args.collection == 'grepp_solution':
+        print(f'args.collection: {args.collection}')
         collection = milvus.create_collection(collection_name='grepp_solution', fields=grepp_solution_fields, embed_field='code_embedding')
     if args.collection == 'leetcode_solution':
+        print(f'args.collection: {args.collection}')
         collection = milvus.create_collection(collection_name='leetcode_solution', fields=leetcode_solution_fields, embed_field='code_embedding')
         
+    if args.collection == 'robotics':
+        print(f'args.collection: {args.collection}')
+        collection = milvus.create_collection(collection_name='robotics', fields=robotics_fields, embed_field='embedding')
+        print(collection)
+    
+    if args.collection == 'robotics-overlapped':
+        print(f'args.collection: {args.collection}')
+        collection = milvus.create_collection(collection_name='robotics_overlapped', fields=robotics_fields, embed_field='embedding')
+        print(collection)
