@@ -35,11 +35,11 @@ if __name__ == '__main__':
     #     problem = milvus.query(collection=collection, expr=f'title == "{args.query}"')
     #     result = milvus.search(collection=search_collection, data=problem[0]["description"], target='desc_embedding')
     #     to_file('./result/query/grepp', f'response-{args.query}.json', result, 'json')
-    with open(f'{args.query}', 'r') as f:
+    with open(f'./qa/input/{args.query}', 'r') as f:
         text = f.read()
     if args.search_collection == 'leetcode_v2':
         target = 'embedding'
     else:
         target = 'desc_embedding'
     result = milvus.search(collection=search_collection, data=text, target=target)
-    to_file(f'./result/query/{args.search_collection}', f'response-{args.query}.json', result, 'json')
+    to_file(f'./qa/result/{args.search_collection}', f'response-{args.query}.json', result, 'json')
