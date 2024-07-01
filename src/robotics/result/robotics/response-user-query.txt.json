@@ -1,0 +1,59 @@
+{
+	"request": {
+		"collection": "robotics",
+		"anns_field": "embedding",
+		"param": {
+			"metric_type": "L2",
+			"params": {
+				"ef": 64
+			}
+		},
+		"limit": 5,
+		"output_fields": [
+			"id",
+			"description"
+		]
+	},
+	"response": [
+		{
+			"id": 450838759703112451,
+			"distance": 0.9571356177330017,
+			"entity": {
+				"id": 450838759703112451,
+				"description": "<s>Hyundai Robot Job File; { version: 1.6, mech_type: \"-1()\", total_axis: -1, aux_axis: -1 }\n     # \"0021_KD_EnetSub2.job\"\n     # 프로토콜 시험용 - 서브태스크 프로그램2\n     # 통신 프로그램 시험용 - 데이터 수신&처리 프로그램\n     #―――――――――――――――――――――――――――――――――――――――――――――――――\n     #―――――――――――――――――――――――――――――――――――――――――――――――――\n     # 변수 설정\n     *Set\n     var Msg_H \t\t\t\t# 수신 메시지 헤더\n     var Msg_X \t\t\t\t# 데이터 처리용 변수\n     var Len \t\t\t\t# 데이터 길이 확인용 변수\n     # 통신 파라미터 설정\n     TCP_S2.ip_addr=\"192.168.1.2\" \t\t# remote (상대방) IP address\n     TCP_S2.lport=5601 \t\t\t# local (자신) port; TCP Server port\n     # (port no. 49152–65535 contains dynamic or private ports)\n     \n     # 이더넷 소켓 열기\n     TCP_S2.open\n     TCP_S2.listen()\n     TCP_S2.accept() 500000,*TimeOut \t\t# client로부터의 connect 대기\n     print TCP_S2.state() \t\t\t# 1이면 정상\n     if TCP_S2.state()!=1 then *Comm_Error\n     \n     task sync,id=1,no=3 \t\t\t# ENet객체 생성을 위한 동기\n     #print \"Sync with maintask & subtask2\"\n     \n     #―――――――――――――――――――――――――――――――――――――――――――――――――\n     # 데이터 명령어 수신 & 처리\n     *Loop\n     Msg_C2=TCP_S2.recv\t\t   \t# 데이터 수신, 무한 대기\n     fb0.do3=0 \t\t\t\t# 데이터 처리 시작\n     TCP_S2.send \"@RBVCOM#\"\t\t\t# 수신 완료(에코)\n     print Msg_C2\n     \n     # 로봇(내부) 입력버퍼 값 확인\n     Buf_I=trunc(Buf_I) \t\t\t# ※ 입력버퍼 : 0 or 1\n     if Buf_I<0 or Buf_I>1 \t\t\t# 입력버퍼 값 이상 시 버퍼값 초기화\n       print \"Buf_I value error : \"+Buf_I\n       stop\n       goto *Exit\n     endif\n     \n     # 수신 명령어 분석\n     Len=len(Msg_C2) \t\t\t# 수신 문자열 길이 추출\n     if Len<10 then *Error \t\t\t# 데이터 누락 시 종료\n     Pos_N[Buf_I]=int(mid(Msg_C2,7,3))\t\t# 좌표 개수 추출(int)\n     Msg_H=left(Msg_C2,7) \t\t\t# 헤더 7자 추출\n     if Msg_H!=\"@RBVCOM\" then *Loop \t\t# 커맨드(헤더) 검사\n     Msg_X=right(Msg_C2,Len-15) # X변수에 헤더+포즈개수 이후 문자열 저장\n     INDEX=int(mid(Msg_C2,11,4)) #INDEX추출\n     INDEXEND=Pos_N[Buf_I]+INDEX #INDEX추출\n     *Data_Set\n     #  데이터 처리 호출\n     call Data_Set1, Msg_X, Pos_N[Buf_I]\t\t# 데이터 처리함수 호출(단순길이계산)\n     print \"Current saved buffer No. : \"+Buf_I\n     fb0.do3=1 \t\t\t\t# 데이터 처리 완료\n     \n     ## 입력 버퍼 변경\n     #if Buf_I==0\n     #Buf_I=1\n     #else\n     #Buf_I=0\n     #endif\n     \n     goto *Loop\n     \n     #―――――――――――――――――――――――――――――――――――――――――――――――――\n     # 이더넷 소켓 닫기\n     *Exit\n     TCP_S2.close\n     print TCP_S2.state() # 0이면 정상\n     delay 1\n     end\n     \n     #―――――――――――――――――――――――――――――――――――――――――――――――――\n     #―――――――――――――――――――――――――――――――――――――――――――――――――\n     # 에러 처리\n     *TimeOut\n     print \"time out!\"\n     TCP_S2.close\n     delay 1\n     end\n     \n     #―――――――――――――――――――――――――――――――――――――――――――――――――\n     *Error\n     print \"Received Value Error : \" + Msg_C2\n     TCP_S2.close\n     delay 1\n     end\n     \n     #―――――――――――――――――――――――――――――――――――――――――――――――――\n     *Comm_Error\n     print \"Ethernet Connection Error!\"\n     TCP_S2.close\n     delay 1\n     end\n     \n     \n     \n</s>"
+			}
+		},
+		{
+			"id": 450838759703112444,
+			"distance": 0.9853465557098389,
+			"entity": {
+				"id": 450838759703112444,
+				"description": "<s>Hyundai Robot Job File; { version: 1.6, mech_type: \"-1()\", total_axis: -1, aux_axis: -1 }\n     # \"0020_KD_EnetSub1.job\"\n     # 프로토콜 시험용 - 서브태스크 프로그램2\n     # 통신 프로그램 시험용 - 명령어 송수신용\n     #―――――――――――――――――――――――――――――――――――――――――――――――――\n     #―――――――――――――――――――――――――――――――――――――――――――――――――\n     # 변수 설정\n     *Set\n     var Len \t\t\t# 데이터 길이 확인용 변수\n     \n     # 통신 파라미터 설정\n     TCP_S1.ip_addr=\"192.168.1.2\" \t# remote (상대방) IP address\n     TCP_S1.lport=5600 \t\t# local (자신) port; TCP Server port\n     # (port no. 49152–65535 contains dynamic or private ports)\n     \n     # 이더넷 소켓 열기\n     TCP_S1.open\n     TCP_S1.listen()\n     TCP_S1.accept() 500000,*TimeOut \t# client로부터의 connect 대기\n     print TCP_S1.state() \t\t# 1이면 정상\n     if TCP_S1.state()!=1 then *Comm_Error\n     \n     task sync,id=1,no=3 \t\t# ENet객체 생성을 위한 동기\n     #print \"Sync with maintask & subtask1\"\n     \n     #―――――――――――――――――――――――――――――――――――――――――――――――――\n     # 명령어 수신\n     *Loop\n     Msg_C1=TCP_S1.recv \t   \t# 데이터 수신, 대기시간: 없음\n     print Msg_C1\n     \n     # 수신 명령어 분석\n     Len=len(Msg_C1)\n     if Len<8 then *Error \t\t# 데이터 누락 시 종료\n     Cmd=left(Msg_C1,7) \t\t# 커맨드 추출\n     if Len>8\n       Op_Data=mid(Msg_C1,7,Len-7) \t# 옵션데이터 추출\n     endif\n     \n     delay 0.01\n     goto *Loop\n     \n     #―――――――――――――――――――――――――――――――――――――――――――――――――\n     # 이더넷 소켓 닫기\n     *Exit\n     TCP_S1.close\n     print TCP_S1.state() # 0이면 정상\n     delay 1\n     end\n     \n     #―――――――――――――――――――――――――――――――――――――――――――――――――\n     #―――――――――――――――――――――――――――――――――――――――――――――――――\n     *TimeOut\n     print \"time out!\"\n     TCP_S1.close\n     delay 1\n     end\n     \n     #―――――――――――――――――――――――――――――――――――――――――――――――――\n     *Error\n     print \"Received Value Error : \" + Msg_C1\n     TCP_S1.close\n     delay 1\n     end\n     \n     #―――――――――――――――――――――――――――――――――――――――――――――――――\n     *Comm_Error\n     print \"Ethernet Connection Error!\"\n     TCP_S1.close\n     delay 1\n     end\n</s>"
+			}
+		},
+		{
+			"id": 450838759703112449,
+			"distance": 0.9909911751747131,
+			"entity": {
+				"id": 450838759703112449,
+				"description": "<s>Hyundai Robot Job File; { version: 1.6, mech_type: \"-1()\", total_axis: -1, aux_axis: -1 }\n     # \"0050_KD_GOHOME.job\"\n     # 프로토콜 시험용 - 서브프로그램5\n     # 미리 정의한 대기위치로 이동\n     #―――――――――――――――――――――――――――――――――――――――――――――――――\n     #―――――――――――――――――――――――――――――――――――――――――――――――――\n     fb0.do0 = 0 \t\t\t# Busy\n     fb0.do2 = 0 \t\t\t# Home Busy\n     \n     Echo=\"\"\n     Echo=\"@GOHOME#\"\n     TCP_S1.send Echo \t\t# 에코 응답 발송\n     \n     selucrd 1\n     H_Pos=Pose(-1.326,115.803,-25.895,1.014,-89.980,-183.154) # 홈위치(Fixed)\n     H_Vel=50\n     \n     # 홈위치 이동\nS1   move P,tg=H_Pos,spd=H_Vel%,accu=3,tool=31\n     \n     # 명령어, 에코, 옵션 데이터 초기화\n     fb0.do2 = 1 \t\t\t# Home Busy\n     fb0.do0 = 1 \t\t\t# Busy\n     \n     Echo=\"\"\n     Op_Data=\"\"\n     Cmd=\"\"\n     #―――――――――――――――――――――――――――――――――――――――――――――――――\n     end\n     \n     \n     \n</s>"
+			}
+		},
+		{
+			"id": 450838759703112384,
+			"distance": 1.002894639968872,
+			"entity": {
+				"id": 450838759703112384,
+				"description": "<s>\n다음과 같은 순서로 수행합니다.\n\nenet 모듈 import 후, 생성자로 ENet 객체 생성.\n멤버변수로 IP주소와 port번호를 설정.\nopen 멤버 프로시져로 ethernet socket 열고, state() 멤버변수로 상태 확인.\n(TCP통신인 경우에는 open 후 connect 프로시져도 수행해야 함.)\nsend, recv 멤버 프로시져로 송수신 수행.\nclose 멤버 프로시져로 통신 연결 닫기.\n\nUDP peer-to-peer\n     # 1. enet 모듈 import 후, 생성자로 ENet 객체 생성\n     import enet\n     var cli=enet.ENet() # TCP 통신인 경우, ENet(\"tcp\")\n\n     # 2. IP주소와 port번호 설정\n     cli.ip_addr=\"192.168.1.172\" # remote (상대방) IP address\n     cli.lport=51001 # local (자신) port\n     cli.rport=51002 # remote (상대방) port \n     # (port no. 49152–65535 contains dynamic or private ports)\n\n     # 3. ethernet socket 열기\n     cli.open\n\n     print cli.state() # 1이면 정상\n\n     # --------------------------------\n     # 4-1. string 송신\n     cli.send \"hello, peer.\n\"\n\n     # 4-2. string 수신\n     #     (5초간 수신 없으면 *TimeOut 레이블로 jump)\n     var msg\n     cli.recv 5000, *TimeOut\n     var msg=result() # 수신된 문자열\n     print msg\n     delay 1.0\n     # --------------------------------\n\n     # 5. ethernet socket 닫기\n     cli.close\n     print cli.state() # 0이면 정상\n     delay 1.5\n     end\n\n     *TimeOut\n     print \"time out!\"\n     cli.close\n     end\n\nTCP client\n(peer-to-peer와는 lport와 connect 부분만 다름.)\n\n     # 1. enet 모듈 import 후, 생성자로 ENet 객체 생성\n     import enet\n     var cli=enet.ENet() # TCP 통신인 경우, ENet(\"tcp\")\n\n     # 2. IP주소와 port번호 설정\n     cli.ip_addr=\"192.168.1.172\" # remote (상대방) IP address\n     cli.lport=0 # local (자신) port; 무작위\n     cli.rport=51002 # remote (상대방) port \n     # (port no. 49152–65535 contains dynamic or private ports)\n\n     # 3. ethernet socket 열기\n     cli.open\n     cli.connect # 서버에 접속.\n     print cli.state() # 1이면 정상\n\n     # --------------------------------\n     # 4-1. string 송신\n     cli.send \"hello, peer.\n\"\n\n     # 4-2. string 수신\n     #     (5초간 수신 없으면 *TimeOut 레이블로 jump)\n     var msg\n     cli.recv 5000, *TimeOut\n     var msg=result() # 수신된 문자열\n     print msg\n     delay 1.0\n     # --------------------------------\n\n     # 5. ethernet socket 닫기\n     cli.close\n     print cli.state() # 0이면 정상\n     delay 1.5\n     end\n\n     *TimeOut\n     print \"time out!\"\n     cli.close\n     end\n</s>"
+			}
+		},
+		{
+			"id": 450838759703112387,
+			"distance": 1.0131624937057495,
+			"entity": {
+				"id": 450838759703112387,
+				"description": "<s>\n다음과 같은 순서로 수행합니다.\n\nenet 모듈 import 후, 생성자로 ENet 객체 생성.\n멤버변수로 IP주소와 port번호를 설정. (remote port 설정은 필요없음.)\nopen 멤버 프로시져로 ethernet socket 열고, listen(), accept() 함수를 수행함. state() 멤버변수로 상태 확인.\nsend, recv 멤버 프로시져로 송수신 수행.\nclose 멤버 프로시져로 통신 연결 닫기.\n     # 1. enet 모듈 import 후, 생성자로 ENet 객체 생성\n     import enet\n     var svr=enet.ENet(\"tcp\")\n     \n     # 2. IP주소와 port번호 설정\n     svr.ip_addr=\"192.168.1.172\" # remote (상대방) IP address\n     svr.lport=51001 # local (자신) port\n     # (port no. 49152–65535 contains dynamic or private ports)\n     \n     # 3. ethernet socket 열기\n     svr.open\n     var ret\n     ret=svr.listen()\n     ret=svr.accept() # client로부터의 connect 대기\n     print svr.state() # 1이면 정상\n     \n     # --------------------------------\n     # 4-1. string 송신\n     svr.send \"Welcome, I am a TCP server.\n\"\n     \n     # 4-2. string 수신\n     #     (5초간 수신 없으면 *TimeOut 레이블로 jump)\n     svr.recv 5000,*TimeOut\n     var msg=result() # 수신된 문자열\n     print msg\n     delay 1.0\n     # --------------------------------\n     \n     # 5. ethernet socket 닫기\n     svr.close\n     print svr.state() # 0이면 정상\n     delay 1.5\n     end\n\n     *TimeOut\n     print \"time out!\"\n     svr.close\n     end\n</s>"
+			}
+		}
+	]
+}
