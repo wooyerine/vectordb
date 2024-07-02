@@ -129,5 +129,9 @@ if __name__ == "__main__":
     
     if args.collection == 'robotics-overlapped':
         print(f'args.collection: {args.collection}')
-        collection = milvus.create_collection(collection_name='robotics_overlapped', fields=robotics_fields, embed_field='embedding')
+        collection = milvus.create_collection(collection_name='robotics_overlapped_20', fields=robotics_fields, embed_field='embedding')
+        collection = milvus.create_collection(collection_name='robotics_overlapped_40', fields=robotics_fields, embed_field='embedding')
+        collection = milvus.create_collection(collection_name='robotics_overlapped_60', fields=robotics_fields, embed_field='embedding')
+        collection = milvus.create_collection(collection_name='robotics_overlapped_80', fields=robotics_fields, embed_field='embedding')
+        collection = milvus.create_collection(collection_name='robotics_overlapped_100', fields=robotics_fields, embed_field='embedding')
         print(collection)
